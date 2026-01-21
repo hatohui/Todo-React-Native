@@ -53,7 +53,7 @@ export const EditTaskModal = ({
       dueDate: dueDate?.getTime(),
       subtasks,
     });
-    // Don't call onClose() here - let the parent handle it after saving
+    onClose();
   };
 
   const addSubtask = () => {

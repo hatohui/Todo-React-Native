@@ -31,8 +31,17 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
 
   // Persist tasks whenever they change
   useEffect(() => {
+    console.log(
+      "useEffect triggered - isLoading:",
+      isLoading,
+      "tasks count:",
+      tasks.length,
+    );
     if (!isLoading) {
+      console.log("Calling storage.saveTasks");
       storage.saveTasks(tasks);
+    } else {
+      console.log("Skipping save - still loading");
     }
   }, [tasks, isLoading]);
 
@@ -64,13 +73,20 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       "TaskContext updateTask called with id:",
       id,
       "updates:",
-      updates,
+      JSON.stringify(updates),
     );
     setTasks((prev) => {
+      const taskToUpdate = prev.find((task) => task.id === id);
+      console.log("Task before update:", JSON.stringify(taskToUpdate));
+
       const updated = prev.map((task) =>
         task.id === id ? { ...task, ...updates } : task,
       );
+
+      const updatedTask = updated.find((task) => task.id === id);
+      console.log("Task after update:", JSON.stringify(updatedTask));
       console.log("Tasks updated, new count:", updated.length);
+
       return updated;
     });
   };

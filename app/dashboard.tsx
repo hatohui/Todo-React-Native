@@ -40,6 +40,8 @@ export default function DashboardScreen() {
   const router = useRouter();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -97,16 +99,16 @@ export default function DashboardScreen() {
   };
 
   const handleDelete = () => {
-    console.log("handleDelete called, selectedTask:", selectedTask);
-    if (selectedTask) {
-      console.log("Deleting task with id:", selectedTask.id);
-      deleteTask(selectedTask.id);
+    console.log("handleDelete called, taskToDelete:", taskToDelete);
+    if (taskToDelete) {
+      console.log("Deleting task with id:", taskToDelete.id);
+      deleteTask(taskToDelete.id);
       setToast({ visible: true, message: "Task deleted", type: "success" });
       setShowDeleteConfirm(false);
-      setShowMenu(false);
+      setTaskToDelete(null);
       setSelectedTask(null);
     } else {
-      console.log("No selectedTask found");
+      console.log("No taskToDelete found");
     }
   };
 
@@ -115,15 +117,22 @@ export default function DashboardScreen() {
   };
 
   const handleSaveEdit = (updates: Partial<Task>) => {
-    if (selectedTask) {
-      updateTask(selectedTask.id, updates);
+    console.log("handleSaveEdit called with updates:", JSON.stringify(updates));
+    console.log("taskToEdit:", JSON.stringify(taskToEdit));
+    if (taskToEdit) {
+      console.log("Calling updateTask with id:", taskToEdit.id);
+      updateTask(taskToEdit.id, updates);
       setToast({ visible: true, message: "Task updated", type: "success" });
       setShowEditModal(false);
+      setTaskToEdit(null);
       setSelectedTask(null);
+    } else {
+      console.log("No taskToEdit found in handleSaveEdit");
     }
   };
 
   const handleCloseMenu = () => {
+    console.log("handleCloseMenu called");
     setShowMenu(false);
     setSelectedTask(null);
   };
@@ -254,12 +263,14 @@ export default function DashboardScreen() {
         visible={showMenu}
         onClose={handleCloseMenu}
         onEdit={() => {
+          setTaskToEdit(selectedTask);
+          setShowEditModal(true);
           setShowMenu(false);
-          handleEdit();
         }}
         onDelete={() => {
-          setShowMenu(false);
+          setTaskToDelete(selectedTask);
           setShowDeleteConfirm(true);
+          setShowMenu(false);
         }}
       />
 
@@ -270,16 +281,18 @@ export default function DashboardScreen() {
         onConfirm={handleDelete}
         onCancel={() => {
           setShowDeleteConfirm(false);
+          setTaskToDelete(null);
           setSelectedTask(null);
         }}
       />
 
       <EditTaskModal
         visible={showEditModal}
-        task={selectedTask}
+        task={taskToEdit}
         onSave={handleSaveEdit}
         onClose={() => {
           setShowEditModal(false);
+          setTaskToEdit(null);
           setSelectedTask(null);
         }}
       />
